@@ -1,0 +1,446 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Tap Tap Padamin Lilin!</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Nanum+Pen+Script&display=swap" rel="stylesheet">
+    
+    <style>
+        /* Variabel warna modern & soft */
+        :root {
+            --bg-game: linear-gradient(160deg, #eaf4fd 0%, #d7e9fb 50%, #c9e0f7 100%);
+            --text-color_rahma: #2c5f8a;
+            --candle-color_rahma: #FFB6C1;
+            --flame-color_rahma: #FF4500;
+            --flame-inner_rahma: #FFA500;
+        }
+
+        * {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+            -webkit-tap-highlight-color: transparent;
+        }
+
+        body, html {
+            width: 100%;
+            height: 100%;
+            font-family: "Nanum Pen Script", cursive, sans-serif;
+            background: var(--bg-game);
+            color: var(--text-color_rahma);
+            overflow: hidden;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            min-height: 100vh;
+            position: relative;
+        }
+
+        /* Container Smartphone */
+        .game-container_rahma {
+            width: 100%;
+            height: 100%;
+            position: relative;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: space-between;
+            padding: 20px 16px;
+            text-align: center;
+            overflow-y: auto;
+        }
+
+        /* Bagian Atas: Skor & Info */
+        .header_rahma {
+            width: 100%;
+        }
+
+        h1 {
+            font-size: 28px;
+            margin-bottom: 6px;
+            line-height: 1.1;
+        }
+
+        .instruction_rahma {
+            font-size: 16px;
+            color: #5a7fa3;
+            margin-bottom: 8px;
+        }
+
+        .score-board_rahma {
+            font-size: 18px;
+            background: rgba(255, 255, 255, 0.85);
+            padding: 4px 12px;
+            border-radius: 20px;
+            display: inline-block;
+            box-shadow: 0 4px 12px rgba(77, 123, 176, 0.18);
+        }
+
+        /* Bagian Tengah: Tempat Kue & Lilin */
+        .stage_rahma {
+            position: relative;
+            width: 100%;
+            height: 250px;
+            display: flex;
+            flex-direction: column;
+            justify-content: flex-end;
+            align-items: center;
+            margin-bottom: 12px;
+        }
+
+        /* Elemen Lilin */
+        .candle-wrapper_rahma {
+            position: relative;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            z-index: 10;
+            margin-bottom: -5px; /* Nempel ke kue */
+        }
+
+        /* API LILIN (Target Tap) */
+        .flame_rahma {
+            width: 35px;
+            height: 50px;
+            background: var(--flame-color_rahma);
+            border-radius: 50% 50% 20% 20% / 60% 60% 40% 40%;
+            position: relative;
+            cursor: pointer;
+            animation: flicker_rahma 0.6s infinite alternate;
+            transform-origin: center bottom;
+            transition: transform 0.1s ease; /* Responsif pas di-tap */
+            box-shadow: 0 0 20px rgba(255, 69, 0, 0.4);
+        }
+
+        .flame_rahma::after {
+            content: '';
+            position: absolute;
+            width: 18px;
+            height: 28px;
+            background: var(--flame-inner_rahma);
+            border-radius: 50% 50% 20% 20% / 60% 60% 40% 40%;
+            bottom: 4px;
+            left: 50%;
+            transform: translateX(-50%);
+        }
+
+        /* Sumbu Lilin */
+        .wick_rahma {
+            width: 4px;
+            height: 12px;
+            background: #333;
+        }
+
+        /* Batang Lilin */
+        .candle-body_rahma {
+            width: 24px;
+            height: 90px;
+            background: linear-gradient(90deg, #FFB6C1 0%, #FFA07A 100%);
+            border-radius: 4px 4px 0 0;
+            box-shadow: inset -4px 0 0 rgba(0,0,0,0.05);
+        }
+
+        /* Elemen Kue Ulang Tahun */
+        .cake_rahma {
+            position: relative;
+            width: 220px;
+            height: 100px;
+            background: #D2B48C; /* Warna dasar kue biskuit/cokelat */
+            border-radius: 20px 20px 10px 10px;
+            box-shadow: 0 10px 20px rgba(0,0,0,0.08);
+            overflow: hidden;
+        }
+
+        /* Selai Krim Meleleh di Atas Kue */
+        .cream_rahma {
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 40px;
+            background: #FFF;
+            border-radius: 0 0 15px 15px;
+        }
+
+        .cream_rahma::before {
+            content: '';
+            position: absolute;
+            width: 100%;
+            height: 15px;
+            background: #FFF;
+            top: 25px;
+            /* Efek lelehan krim */
+            background-image: radial-gradient(circle at 20px 0px, #FFF 15px, transparent 16px),
+                              radial-gradient(circle at 60px 0px, #FFF 12px, transparent 13px),
+                              radial-gradient(circle at 100px 0px, #FFF 18px, transparent 19px),
+                              radial-gradient(circle at 140px 0px, #FFF 14px, transparent 15px),
+                              radial-gradient(circle at 180px 0px, #FFF 16px, transparent 17px);
+        }
+
+        /* Pop-up Menang & Modal Awal */
+        .overlay_rahma, .modal-overlay_rahma {
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(245, 250, 255, 0.96);
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            align-items: center;
+            padding: 24px;
+            z-index: 100;
+        }
+
+        /* Pengaturan transisi penampilan modal */
+        .overlay_rahma {
+            opacity: 0;
+            pointer-events: none;
+            transition: opacity 0.4s ease;
+        }
+
+        .overlay_rahma.active {
+            opacity: 1;
+            pointer-events: auto;
+        }
+
+        /* Modal awal langsung aktif, nanti dihilangkan pakai class .hidden */
+        .modal-overlay_rahma {
+            opacity: 1;
+            pointer-events: auto;
+            transition: opacity 0.4s ease, transform 0.4s ease;
+        }
+
+        .modal-overlay_rahma.hidden {
+            opacity: 0;
+            pointer-events: none;
+            transform: scale(0.95);
+        }
+
+        .overlay_rahma h2, .modal-overlay_rahma h2 {
+            font-size: 42px;
+            margin-bottom: 12px;
+            color: #2c5f8a;
+        }
+
+        .overlay_rahma p, .modal-overlay_rahma p {
+            font-size: 26px;
+            margin-bottom: 24px;
+            color: #5a7fa3;
+        }
+
+        /* Tombol Main Lagi & Balik */
+        .btn_rahma {
+            font-family: inherit;
+            background: linear-gradient(135deg, #6cb2e8, #3a7bc8);
+            color: white;
+            border: none;
+            padding: 8px 20px;
+            font-size: 20px; /* Ukuran font disesuaikan agar tulisan Nanum Pen terbaca jelas */
+            border-radius: 25px;
+            cursor: pointer;
+            box-shadow: 0 4px 15px rgba(58, 123, 200, 0.4);
+            transition: transform 0.1s ease, box-shadow 0.2s ease;
+            margin-top: 8px;
+        }
+
+        .btn_rahma:active {
+            transform: scale(0.95);
+        }
+
+        .btn_rahma:hover {
+            transform: translateY(-2px) scale(1.03);
+            box-shadow: 0 12px 22px rgba(58, 123, 200, 0.45);
+        }
+
+        /* Animasi Api Goyang */
+        @keyframes flicker_rahma {
+            0% { transform: skewX(-2deg) scale(1); }
+            100% { transform: skewX(2deg) scale(1.05); }
+        }
+
+        /* ====== DEKORASI AMBIENT DI BACKGROUND ====== */
+        .bg-decor {
+            position: fixed;
+            border-radius: 50%;
+            filter: blur(2px);
+            opacity: 0.5;
+            z-index: 0;
+            background: radial-gradient(circle, rgba(255, 255, 255, 0.8), transparent);
+            animation: float 6s ease-in-out infinite;
+        }
+
+        .bg-decor.satu { width: 80px; height: 80px; top: 10%; left: 8%; animation-delay: 0s; }
+        .bg-decor.dua { width: 50px; height: 50px; top: 70%; left: 12%; animation-delay: 1.5s; }
+        .bg-decor.tiga { width: 60px; height: 60px; top: 20%; right: 10%; animation-delay: 3s; }
+        .bg-decor.empat { width: 40px; height: 40px; bottom: 15%; right: 15%; animation-delay: 2s; }
+
+        @keyframes float {
+            0%, 100% { transform: translateY(0px); }
+            50% { transform: translateY(-20px); }
+        }
+
+        /* ====== FRAME PONSEL (mockup phone) ====== */
+        .phone-frame {
+            position: relative;
+            width: 320px;
+            height: 600px;
+            background: #ffffff;
+            border-radius: 36px;
+            box-shadow:
+                0 25px 60px rgba(74, 144, 217, 0.25),
+                0 8px 20px rgba(74, 144, 217, 0.15),
+                inset 0 0 0 8px #ffffff,
+                inset 0 0 0 9px #d7e9fb;
+            overflow: hidden;
+            z-index: 1;
+        }
+
+        /* ====== RESPONSIVE UNTUK MOBILE ====== */
+        @media (max-width: 400px) {
+            .phone-frame {
+                width: 92vw;
+                height: 88vh;
+                max-width: 320px;
+                max-height: 600px;
+            }
+        }
+    </style>
+</head>
+<body>
+
+    <div class="bg-decor satu"></div>
+    <div class="bg-decor dua"></div>
+    <div class="bg-decor tiga"></div>
+    <div class="bg-decor empat"></div>
+
+    <div class="phone-frame">
+        <div class="game-container_rahma">
+        
+            <div id="start-modal_rahma" class="modal-overlay_rahma">
+                <p>Udah siap buat tiup lilinnya?</p>
+                <button class="btn_rahma" onclick="siapTiupLilin_rahma()">Gass!</button>
+            </div>
+        
+            <div class="header_rahma">
+                <h1>Tiup Lilinnya Rain!</h1>
+                <p class="instruction_rahma">Tap di bagian apinya berkali-kali!</p>
+                <div class="score-board_rahma">
+                    Sisa Nyawa Api: <span id="health-text_rahma">10</span>
+                </div>
+            </div>
+
+            <div class="stage_rahma">
+                <div class="candle-wrapper_rahma">
+                    <div id="target-flame_rahma" class="flame_rahma" onclick="hitFlame_rahma()"></div>
+                    <div class="wick_rahma"></div>
+                    <div class="candle-body_rahma"></div>
+                </div>
+                <div class="cake_rahma">
+                    <div class="cream_rahma"></div>
+                </div>
+            </div>
+
+            <button class="btn_rahma" onclick="window.location.href='index2.html'">Balik ke awal</button>
+
+            <div id="win-screen_rahma" class="overlay_rahma">
+                <h2>YIPPIEE! 🎉</h2>
+                <p>Lilinnya berhasil dipademin!</p>
+                <p style="font-size: 22px; color: #8B5A55;">Selamat Ulang Tahun yaa~ 🎂</p>
+                <button class="btn_rahma" onclick="resetGame_rahma()">Main Lagi 🔄</button>
+            </div>
+
+        </div>
+    </div>
+
+    <audio id="bgMusicBaru" src="audio/Birthday_Song.mp3" loop></audio>
+
+    <script>
+        // Nyawa awal api lilin (berapa kali harus di-tap)
+        let clickRequired_rahma = 10;
+        let currentClicks_rahma = clickRequired_rahma;
+
+        // Ambil elemen DOM yang dibutuhkan
+        const flameEl_rahma = document.getElementById('target-flame_rahma');
+        const healthTextEl_rahma = document.getElementById('health-text_rahma');
+        const winScreenEl_rahma = document.getElementById('win-screen_rahma');
+        const startModalEl_rahma = document.getElementById('start-modal_rahma');
+
+        // [BARU] Fungsi ketika tombol modal diklik
+        function siapTiupLilin_rahma() {
+            // 1. Putar lagu latar (Aman dari pembatasan browser karena dipicu klik user)
+            const musikBaru = document.getElementById('bgMusicBaru');
+            if (musikBaru) {
+                musikBaru.play().catch(function(error_rahma) {
+                    console.log("Musik tertahan sistem keamanan browser:", error_rahma);
+                });
+            }
+            
+            // 2. Sembunyikan modal dengan efek transisi smooth
+            startModalEl_rahma.classList.add('hidden');
+        }
+
+        // Fungsi yang berjalan setiap kali api di-tap
+        function hitFlame_rahma() {
+            if (currentClicks_rahma <= 0) return;
+
+            // Kurangi nyawa api
+            currentClicks_rahma--;
+            healthTextEl_rahma.textContent = currentClicks_rahma;
+
+            // Hitung skala pengecilan api berdasarkan sisa klik
+            let scaleRatio_rahma = currentClicks_rahma / clickRequired_rahma;
+            
+            // Efek visual api mengecil secara dinamis
+            flameEl_rahma.style.transform = `scale(${scaleRatio_rahma})`;
+            flameEl_rahma.style.boxShadow = `0 0 ${20 * scaleRatio_rahma}px rgba(255, 69, 0, 0.4)`;
+
+            // Kasih efek goyang kaget pas di-tap
+            flameEl_rahma.style.animation = 'none';
+            setTimeout(() => {
+                if (currentClicks_rahma > 0) {
+                    flameEl_rahma.style.animation = 'flicker_rahma 0.4s infinite alternate';
+                }
+            }, 10);
+
+            // Cek apakah api sudah padam (nyawa = 0)
+            if (currentClicks_rahma === 0) {
+                extinguishFlame_rahma();
+            }
+        }
+
+        // Fungsi saat api beneran padam
+        function extinguishFlame_rahma() {
+            flameEl_rahma.style.display = 'none';
+            
+            setTimeout(() => {
+                winScreenEl_rahma.classList.add('active');
+            }, 300);
+        }
+
+        // Fungsi untuk mengulang game dari awal
+        function resetGame_rahma() {
+            currentClicks_rahma = clickRequired_rahma;
+            healthTextEl_rahma.textContent = currentClicks_rahma;
+            
+            flameEl_rahma.style.display = 'block';
+            flameEl_rahma.style.transform = 'scale(1)';
+            flameEl_rahma.style.boxShadow = '0 0 20px rgba(255, 69, 0, 0.4)';
+            flameEl_rahma.style.animation = 'flicker_rahma 0.6s infinite alternate';
+            
+            winScreenEl_rahma.classList.remove('active');
+
+            // Musik mengulang kembali dari awal saat game direset
+            const musikBaru = document.getElementById('bgMusicBaru');
+            if (musikBaru) {
+                musikBaru.currentTime = 0;
+                musikBaru.play().catch(function(e){ console.log(e); });
+            }
+        }
+    </script>
+</body>
+</html>
